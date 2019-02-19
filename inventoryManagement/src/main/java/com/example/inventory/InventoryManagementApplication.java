@@ -1,5 +1,10 @@
 package com.example.inventory;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Map;
 
 import org.springframework.boot.SpringApplication;
@@ -12,10 +17,44 @@ public class InventoryManagementApplication {
 		SpringApplication.run(InventoryManagementApplication.class, args);
 	}
 
-	public String authenticateIntoApplication(Map<String, Object> payload) {
+	public DashboardData authenticateIntoApplication(Map<String, String> payload) throws SQLException, ClassNotFoundException {
 		// TODO Auto-generated method stub
 		//Perform logic to authenticate into the application
-		return "You're In!!";
+		boolean authenticated = false;
+		DashboardData dashBoardData = new DashboardData();
+		Connection con = null;
+		String connectionUrl = "jdbc:sqlserver://pyro-db.cc5cts2xsvng.us-east-2.rds.amazonaws.com:1433;databaseName=?;user=?;password=?";
+		con = DriverManager.getConnection(connectionUrl);
+		String sql = "SELECT * FROM dbo.Login where UserName = ? and password = ?";
+		PreparedStatement ps = con.prepareStatement(sql);
+		ps.setString(1, "Dan");
+		ps.setString(2, "test");
+
+		ResultSet rs = ps.executeQuery();
+		if(rs != null) {
+			while(rs.next()) {
+				//Test
+				System.out.println("UserName: " + rs.getString("UserName") + " Password: " + rs.getString("Password") + " Admin: " + rs.getString("Admin"));
+			}
+			authenticated = true;
+		} 
+
+		if(!con.isClosed()) {
+			con.close();
+		}
+        //test response object
+		dashBoardData.setName("Test Unit 1");
+		dashBoardData.setLocation("Test Location");
+		dashBoardData.setNumberOfItems(12);
+		dashBoardData.setCapacity(23.0);
+		dashBoardData.setCurrentWeight(256.0);
+		
+		return dashBoardData;
+	}
+
+	public String createDigitalStorageItem(Map<String, String> payload) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 
