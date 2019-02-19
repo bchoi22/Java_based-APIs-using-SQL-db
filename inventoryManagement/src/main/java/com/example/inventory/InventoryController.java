@@ -23,23 +23,27 @@ public class InventoryController {
 	 * a json object containing all of the data needed to 
 	 * build the users dashboard if they successfully authenticate in.
 	 * 
-	 * test with: curl -H "Content-Type: application/json" --data '{"username":"xyz","password":"xyz"}' @body.json http://localhost:8080/login
+	 * test with: curl -H "Content-Type: application/json" --data '{"username":"xyz","password":"123"}' @body.json http://localhost:8080/login
 	 */
 	@RequestMapping("/login")
 	@ResponseBody
-	public DashboardData login(@RequestBody Map<String, String> payload) throws SQLException, ClassNotFoundException {
+	public Boolean login(@RequestBody Map<String, String> payload) throws SQLException, ClassNotFoundException {
 		//The controller receives the request from the front end and then sends it
 		//to inventoryManagement to perform processing. 
-		DashboardData dashData = new DashboardData();
-		dashData = inventoryManagement.authenticateIntoApplication(payload); 
+		//DashboardData dashData = new DashboardData();
+		boolean authenticated = false;
+		String username = payload.get("username");
+		String password = payload.get("password");
+		authenticated = inventoryManagement.authenticateIntoApplication(username, password); 
 
-		return dashData;
+		return authenticated;
 	}
 
 
 	@RequestMapping(value = "/createDigitalStorageItem")
 	@ResponseBody
 	public String createDigitalStorageItem(@RequestBody Map<String, String> payload) {
+		
 		String response = inventoryManagement.createDigitalStorageItem(payload);
 		return "dashboard";
 	}
