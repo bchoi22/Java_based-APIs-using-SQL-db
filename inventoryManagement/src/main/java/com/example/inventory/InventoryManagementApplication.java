@@ -18,70 +18,114 @@ public class InventoryManagementApplication {
 		SpringApplication.run(InventoryManagementApplication.class, args);
 	}
 
-	public Boolean authenticateIntoApplication(String username, String password) throws SQLException, ClassNotFoundException {
-		// TODO Auto-generated method stub
-		//Perform logic to authenticate into the application
+	public Boolean authenticateIntoApplication(String username, String password) throws SQLException  {
 		boolean authenticated = false;
-		//DashboardData dashBoardData = new DashboardData();
 		Connection con = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+
 		String connectionUrl = "jdbc:sqlserver://pyro-db.cc5cts2xsvng.us-east-2.rds.amazonaws.com:1433;databaseName=?;user=?;password=?";
 
-		con = DriverManager.getConnection(connectionUrl);
-		String sql = "SELECT * FROM dbo.Login where UserName = ? and password = ?";
-		PreparedStatement ps = con.prepareStatement(sql);
-		ps.setString(1, username);
-		ps.setString(2, password);
+		try {
+			con = DriverManager.getConnection(connectionUrl);
 
-		ResultSet rs = ps.executeQuery();
-		if(rs != null) {
-			while(rs.next()) {
-				//Test
-				authenticated = true;
-			//	System.out.println("UserName: " + rs.getString("UserName") + " Password: " + rs.getString("Password") + " Admin: " + rs.getString("Admin"));
+			String sql = "SELECT * FROM dbo.Login where UserName = ? and password = ?";
+			ps = con.prepareStatement(sql);
+			ps.setString(1, username);
+			ps.setString(2, password);
+
+			rs = ps.executeQuery();
+			if(rs != null) {
+				while(rs.next()) {
+					//Test
+					authenticated = true;
+					//	System.out.println("UserName: " + rs.getString("UserName") + " Password: " + rs.getString("Password") + " Admin: " + rs.getString("Admin"));
+				}
+
+			} 
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+			authenticated = false;
+		} finally {
+			if(!con.isClosed()) {
+				con.close();
 			}
-			
-		} 
 
-		if(!con.isClosed()) {
-			con.close();
+			if(!rs.isClosed()) {
+				rs.close();
+			}
+
+			if(!ps.isClosed()) {
+				ps.close();
+			}
+
 		}
-		
-		/*
-        //test response object
-		dashBoardData.setName("Test Unit 1");
-		dashBoardData.setLocation("Test Location");
-		dashBoardData.setNumberOfItems(12);
-		dashBoardData.setCapacity(23.0);
-		dashBoardData.setCurrentWeight(256.0);
-		
-		return dashBoardData;
-		*/
+
+
+
 		return authenticated;
 	}
 
-	public String createDigitalStorageItem(Map<String, String> payload) {
+	public Boolean createDigitalStorageItem(String bucketName, String partNumbersAllowed, String department,
+			String unitOfMeasurement, int maxMeasConverted, String location) throws SQLException {
 		//Get next primary key to use for ID.
+
 		int bucketKey = 0;
 		Connection con = null;
-		String connectionUrl = "jdbc:sqlserver://pyro-db.cc5cts2xsvng.us-east-2.rds.amazonaws.com:1433;databaseName=?;user=?;password=?";
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		//String connectionUrl = "jdbc:sqlserver://pyro-db.cc5cts2xsvng.us-east-2.rds.amazonaws.com:1433;databaseName=?;user=?;password=?";
+		String connectionUrl = "jdbc:sqlserver://pyro-db.cc5cts2xsvng.us-east-2.rds.amazonaws.com:1433;databaseName=FuzzyDB;user=Fuzzies;password=abcdefg1234567";
 		try {
 			con = DriverManager.getConnection(connectionUrl);
 			String sql = "SELECT max(BucketID) as bucketId FROM dbo.Buckets";
 			Statement state = con.createStatement();
-			ResultSet rs = state.executeQuery(sql);
+			rs = state.executeQuery(sql);
 			while(rs.next()) {
 				bucketKey = rs.getInt("BucketId");
 			}
 			bucketKey++;
-			
+
 			//insert new Storage item into the buckets table.
-		} catch (SQLException e) {
-			
-			e.printStackTrace();
-		}
+			String insertSql = "insert into dbo.Buckets(BucketID, BucketName, PartNumbersAllowed, DepartmentID, UnitOfMeasurement, MaxMeasurement, Location) " +
+					"VALUES(?, ?, ?, ?, ?, ?, ?)";
+			ps = con.prepareStatement(insertSql);
+			ps.setInt(1, bucketKey);
+			ps.setString(2, bucketName);
+			ps.setString(3, partNumbersAllowed);
+			ps.setString(4, department);
+			ps.setString(5, unitOfMeasurement);
+			ps.setInt(6, maxMeasConverted);
+			ps.setString(7, location);
+
+			ps.executeUpdate();
 		
-		return null;
+
+		} 
+		catch (SQLException e) {
+
+			e.printStackTrace();
+			return false;
+		} 
+		finally {
+			if(!con.isClosed()) {
+				con.close();
+			}
+
+			if(!rs.isClosed()) {
+				rs.close();
+			}
+
+			if(!ps.isClosed()) {
+				ps.close();
+			}
+		}
+
+		return true;
 	}
+
+
 
 
 

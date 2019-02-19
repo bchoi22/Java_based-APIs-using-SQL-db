@@ -3,6 +3,7 @@ package com.example.inventory;
 import java.sql.SQLException;
 import java.util.Map;
 
+import org.attoparser.config.ParseConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,20 +40,23 @@ public class InventoryController {
 		return authenticated;
 	}
 
-
+    //test with: curl -H "Content-Type: application/json" --data '{"bucketName":"Unit1","partNumbersAllowed":"123789-121", "department":"testDept", "unitOfMeasurement":"pounds", "maxMeasurement":"300", "location":"testLocation"}' @body.json http://localhost:8080/createDigitalStorageItem
 	@RequestMapping(value = "/createDigitalStorageItem")
 	@ResponseBody
-	public String createDigitalStorageItem(@RequestBody Map<String, String> payload) {
+	public Boolean createDigitalStorageItem(@RequestBody Map<String, String> payload) throws SQLException {
+		String bucketName = payload.get("bucketName");
+		String partNumbersAllowed = payload.get("partNumbersAllowed");
+		String department = payload.get("department");
+		String unitOfMeasurement = payload.get("unitOfMeasurement");
+		String maxMeasurement = payload.get("maxMeasurement");
+		String location = payload.get("location");
+		int maxMeasConverted = Integer.parseInt(maxMeasurement);
+		boolean response = inventoryManagement.createDigitalStorageItem(bucketName, partNumbersAllowed, department, unitOfMeasurement, maxMeasConverted, location);
 		
-		String response = inventoryManagement.createDigitalStorageItem(payload);
-		return "dashboard";
+		return response;
 	}
 
 
 
-	@RequestMapping("/saveDashboard")
-	@ResponseBody
-	public String saveDashboard() {
-		return "dashboard";
-	}
+
 }
