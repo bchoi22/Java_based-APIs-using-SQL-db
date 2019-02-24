@@ -202,6 +202,64 @@ public class InventoryManagementApplication {
 		return true;
 	}
 
+	public boolean removePartsToStorage(int bucketIDconverted, String partNumber, String serialNumber) throws SQLException {
+		// TODO Auto-generated method stub
+		Connection con = null;
+		PreparedStatement ps = null;
+		PreparedStatement psInsert = null;
+		ResultSet rs = null;
+		//Boolean partLoaded = false;
+		PreparedStatement ps2 = null;
+		String connectionUrl = "jdbc:sqlserver://pyro-db.cc5cts2xsvng.us-east-2.rds.amazonaws.com:1433;databaseName=FuzzyDB;user=Fuzzies;password=abcdefg1234567";
+
+		try {
+			con = DriverManager.getConnection(connectionUrl);
+
+			String sql = "SELECT * FROM dbo.Items where BucketID = ? and SerialNumber = ? and PartNumber = ?";
+			ps = con.prepareStatement(sql);
+			ps.setInt(1, bucketIDconverted);
+			ps.setString(2, serialNumber);
+			ps.setString(3,  partNumber);
+		
+
+			rs = ps.executeQuery();
+			if(rs != null) {
+				String sqlDelete = "DELETE FROM dbo.Items where BucketID = ? and SerialNumber = ? and PartNumber = ?";
+				
+				ps2 = con.prepareStatement(sqlDelete);
+				ps2.setInt(1, bucketIDconverted);
+				ps2.setString(2,  serialNumber);
+				ps2.setString(3,  partNumber);
+				ps2.execute(sqlDelete);
+			}
+			
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+			//partLoaded = false;
+			return false;
+		} finally {
+			if(!con.isClosed()) {
+				con.close();
+			}
+
+			if(!rs.isClosed()) {
+				rs.close();
+			}
+
+			if(!ps.isClosed()) {
+				ps.close();
+			}
+			if(!ps2.isClosed()) {
+				ps2.close();
+			}
+
+		}
+
+
+
+		return true;
+	}
 
 
 
