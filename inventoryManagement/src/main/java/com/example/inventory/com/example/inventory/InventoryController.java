@@ -24,7 +24,7 @@ public class InventoryController {
 	 * a json object containing all of the data needed to 
 	 * build the users dashboard if they successfully authenticate in.
 	 * 
-	 * test with: curl -H "Content-Type: application/json" --data '{"username":"xyz","password":"123"}' @body.json http://localhost:8080/login
+	 * test with: curl -H "Content-Type: application/json" --data '{"username":"Dan","password":"test"}' @body.json http://localhost:8080/login
 	 */
 	@RequestMapping("/login")
 	@ResponseBody

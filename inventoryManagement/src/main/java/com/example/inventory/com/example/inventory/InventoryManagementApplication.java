@@ -24,7 +24,7 @@ public class InventoryManagementApplication {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
-		String connectionUrl = "jdbc:sqlserver://pyro-db.cc5cts2xsvng.us-east-2.rds.amazonaws.com:1433;databaseName=?;user=?;password=?";
+		String connectionUrl = "jdbc:sqlserver://pyro-db.cc5cts2xsvng.us-east-2.rds.amazonaws.com:1433;databaseName=FuzzyDB;user=Fuzzies;password=abcdefg1234567";
 
 		try {
 			con = DriverManager.getConnection(connectionUrl);
@@ -75,7 +75,7 @@ public class InventoryManagementApplication {
 		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
-		String connectionUrl = "jdbc:sqlserver://pyro-db.cc5cts2xsvng.us-east-2.rds.amazonaws.com:1433;databaseName=?;user=?;password=?";
+		String connectionUrl = "jdbc:sqlserver://pyro-db.cc5cts2xsvng.us-east-2.rds.amazonaws.com:1433;databaseName=FuzzyDB;user=Fuzzies;password=abcdefg1234567";
 		
 		try {
 			con = DriverManager.getConnection(connectionUrl);
