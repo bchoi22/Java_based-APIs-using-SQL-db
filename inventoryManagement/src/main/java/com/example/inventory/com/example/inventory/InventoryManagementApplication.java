@@ -125,6 +125,83 @@ public class InventoryManagementApplication {
 		return true;
 	}
 
+	public boolean addPartsToStorage(int bucketIDconverted, String partNumber, String serialNumber) throws SQLException {
+		// TODO Auto-generated method stub
+		Connection con = null;
+		PreparedStatement ps = null;
+		PreparedStatement psInsert = null;
+		ResultSet rs = null;
+		//Boolean partLoaded = false;
+
+		String connectionUrl = "jdbc:sqlserver://pyro-db.cc5cts2xsvng.us-east-2.rds.amazonaws.com:1433;databaseName=FuzzyDB;user=Fuzzies;password=abcdefg1234567";
+
+		try {
+			con = DriverManager.getConnection(connectionUrl);
+
+			String sql = "SELECT * FROM dbo.Items where BucketID = ? and SerialNumber = ? and PartNumber = ?";
+			ps = con.prepareStatement(sql);
+			ps.setInt(1, bucketIDconverted);
+			ps.setString(2, serialNumber);
+			ps.setString(3,  partNumber);
+		
+
+			rs = ps.executeQuery();
+			if(rs != null) {
+				while(rs.next()) {
+					//Test
+					//partLoaded = true;
+					return false;
+					//	System.out.println("UserName: " + rs.getString("UserName") + " Password: " + rs.getString("Password") + " Admin: " + rs.getString("Admin"));
+				}
+
+			} else {
+				int itemID = 0;
+				String sqlMaxID = "SELECT max(ItemID) as itemId FROM dbo.Items";
+				Statement state = con.createStatement();
+				rs = state.executeQuery(sqlMaxID);
+				while(rs.next()) {
+					itemID = rs.getInt("itemId");
+				}
+				itemID++;
+				String sqlInsert = "INSERT INTO dbo.Items(ItemID, BucketID, PartNumber, SerialNumber) " + 
+				"values(?, ?, ?, ?)";
+				psInsert = con.prepareStatement(sqlInsert);
+				psInsert.setInt(1, itemID);
+				psInsert.setInt(2, bucketIDconverted);
+				psInsert.setString(3, partNumber);
+				psInsert.setString(4, serialNumber);
+
+				psInsert.executeUpdate();
+				
+			}
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+			//partLoaded = false;
+			return false;
+		} finally {
+			if(!con.isClosed()) {
+				con.close();
+			}
+
+			if(!rs.isClosed()) {
+				rs.close();
+			}
+
+			if(!ps.isClosed()) {
+				ps.close();
+			}
+			if(!psInsert.isClosed()) {
+				psInsert.close();
+			}
+
+		}
+
+
+
+		return true;
+	}
+
 
 
 

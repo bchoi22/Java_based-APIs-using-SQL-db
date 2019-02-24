@@ -56,7 +56,16 @@ public class InventoryController {
 		return response;
 	}
 
-
-
+	@RequestMapping(value = "/addPartsToStorage")
+	@ResponseBody 
+	public Boolean addPartsToStorage(@RequestBody Map<String, String> payload) throws SQLException {
+		String bucketID = payload.get("bucketID");
+		int bucketIDconverted = Integer.parseInt(bucketID);
+		String partNumber = payload.get("partNumber");
+		String serialNumber = payload.get("serialNumber");
+		
+		boolean response = inventoryManagement.addPartsToStorage(bucketIDconverted, partNumber, serialNumber);
+		return response;
+	}
 
 }
