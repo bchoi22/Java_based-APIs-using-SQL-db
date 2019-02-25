@@ -35,12 +35,13 @@ public class InventoryController {
 		boolean authenticated = false;
 		String username = payload.get("username");
 		String password = payload.get("password");
+
 		authenticated = inventoryManagement.authenticateIntoApplication(username, password); 
 
 		return authenticated;
 	}
 
-    //test with: curl -H "Content-Type: application/json" --data '{"bucketName":"Unit1","partNumbersAllowed":"123789-121", "department":"testDept", "unitOfMeasurement":"pounds", "maxMeasurement":"300", "location":"testLocation"}' @body.json http://localhost:8080/createDigitalStorageItem
+	//test with: curl -H "Content-Type: application/json" --data '{"bucketName":"Unit1","partNumbersAllowed":"123789-121", "department":"testDept", "unitOfMeasurement":"pounds", "maxMeasurement":"300", "location":"testLocation"}' @body.json http://localhost:8080/createDigitalStorageItem
 	@RequestMapping(value = "/createDigitalStorageItem")
 	@ResponseBody
 	public Boolean createDigitalStorageItem(@RequestBody Map<String, String> payload) throws SQLException {
@@ -52,11 +53,34 @@ public class InventoryController {
 		String location = payload.get("location");
 		int maxMeasConverted = Integer.parseInt(maxMeasurement);
 		boolean response = inventoryManagement.createDigitalStorageItem(bucketName, partNumbersAllowed, department, unitOfMeasurement, maxMeasConverted, location);
-		
+
 		return response;
 	}
 
+	@RequestMapping(value = "/addPartsToStorage")
+	@ResponseBody 
+	public Boolean addPartsToStorage(@RequestBody Map<String, String> payload) throws SQLException {
+		String bucketID = payload.get("bucketID");
+		int bucketIDconverted = Integer.parseInt(bucketID);
+		String partNumber = payload.get("partNumber");
+		String serialNumber = payload.get("serialNumber");
 
+		boolean response = inventoryManagement.addPartsToStorage(bucketIDconverted, partNumber, serialNumber);
+		return response;
+	}
+
+	
+	@RequestMapping(value = "/removePartsToStorage")
+	@ResponseBody 
+	public Boolean removePartsToStorage(@RequestBody Map<String, String> payload) throws SQLException {
+		String bucketID = payload.get("bucketID");
+		int bucketIDconverted = Integer.parseInt(bucketID);
+		String partNumber = payload.get("partNumber");
+		String serialNumber = payload.get("serialNumber");
+
+		boolean response = inventoryManagement.removePartsToStorage(bucketIDconverted, partNumber, serialNumber);
+		return response;
+	}
 
 
 }
