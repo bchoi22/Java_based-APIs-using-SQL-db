@@ -262,8 +262,69 @@ public class InventoryManagementApplication {
 		return true;
 	}
 
+	public boolean setUpPartNumber(String partNumber, int trackByWeightConverted, double weightConverted) throws SQLException {
+		// TODO Auto-generated method stub
+		Connection con = null;
+		PreparedStatement ps = null;
+		PreparedStatement psInsert = null;
+		ResultSet rs = null;
 
+		String connectionUrl = "jdbc:sqlserver://pyro-db.cc5cts2xsvng.us-east-2.rds.amazonaws.com:1433;databaseName=FuzzyDB;user=Fuzzies;password=abcdefg1234567";
 
+		try {
+			con = DriverManager.getConnection(connectionUrl);
+
+			String sql = "SELECT * FROM dbo.PartNumbers where PartNumber = ? and TrackByWeight = ? and Weight = ?";
+			ps = con.prepareStatement(sql);
+			ps.setString(1, partNumber);
+			ps.setInt(2, trackByWeightConverted);
+			ps.setDouble(3,  weightConverted);
+
+			rs = ps.executeQuery();
+			if(rs.isBeforeFirst()) {
+				
+				return false;
+					
+			} else {
+				
+				String sqlInsert = "INSERT INTO dbo.PartNumbers(PartNumber, TrackByWeight, Weight) " + 
+						"values(?, ?, ?)";
+				psInsert = con.prepareStatement(sqlInsert);
+				psInsert.setString(1, partNumber);
+				if (trackByWeightConverted != 0)
+					psInsert.setInt(2, 1);
+				else
+					psInsert.setInt(2, 0);
+				psInsert.setDouble(3, weightConverted);
+
+				psInsert.executeUpdate();
+
+			}
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+			return false;
+			
+		} finally {
+			if(!con.isClosed() && con != null) {
+				con.close();
+			}
+
+			if(!rs.isClosed() && rs != null) {
+				rs.close();
+			}
+
+			if(!ps.isClosed() && ps != null) {
+				ps.close();
+			}
+			/*
+			if(!psInsert.isClosed() && psInsert != null) {
+				psInsert.close();
+			}
+		*/
+		}
+		return true;
+	}
 
 }
 
