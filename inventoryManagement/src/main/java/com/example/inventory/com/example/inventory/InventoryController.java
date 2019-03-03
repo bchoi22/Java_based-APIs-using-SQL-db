@@ -60,12 +60,19 @@ public class InventoryController {
 	@RequestMapping(value = "/addPartsToStorage")
 	@ResponseBody 
 	public Boolean addPartsToStorage(@RequestBody Map<String, String> payload) throws SQLException {
-		String bucketID = payload.get("bucketID");
-		int bucketIDconverted = Integer.parseInt(bucketID);
-		String partNumber = payload.get("partNumber");
-		String serialNumber = payload.get("serialNumber");
+		//String itemID = payload.get("itemID");
+		String username = payload.get("username");
+		String csrf = payload.get("csrf");
+		String department = payload.get("department");
+		int unit = Integer.parseInt(payload.get("unit"));
+		String type = payload.get("type");
+		//boolean hasWeight = Boolean.parseBoolean(payload.get("hasWeight"));
+		int hasWeight = Integer.parseInt(payload.get("hasWeight"));
+		int serialNo = Integer.parseInt(payload.get("serialNo"));
+		int partNo = Integer.parseInt(payload.get("partNo"));
+		int weight = Integer.parseInt(payload.get("weight"));
 
-		boolean response = inventoryManagement.addPartsToStorage(bucketIDconverted, partNumber, serialNumber);
+		boolean response = inventoryManagement.addPartsToStorage(username, csrf, department, unit, type, hasWeight, serialNo, partNo, weight);
 		return response;
 	}
 
@@ -94,5 +101,6 @@ public class InventoryController {
 		boolean response = inventoryManagement.setUpPartNumber(partNumber, trackByWeightConverted, weightConverted);
 		return response;
 	}
+	
 
 }

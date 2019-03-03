@@ -126,7 +126,7 @@ public class InventoryManagementApplication {
 	}
 
 
-	public boolean addPartsToStorage(int bucketIDconverted, String partNumber, String serialNumber) throws SQLException {
+	public boolean addPartsToStorage(String username, String csrf, String department, int unit, String type, int hasWeight, int serialNo, int partNo, int weight) throws SQLException {
 		// TODO Auto-generated method stub
 		Connection con = null;
 		PreparedStatement ps = null;
@@ -139,12 +139,17 @@ public class InventoryManagementApplication {
 		try {
 			con = DriverManager.getConnection(connectionUrl);
 
-			String sql = "SELECT * FROM dbo.Items where BucketID = ? and SerialNumber = ? and PartNumber = ?";
+			String sql = "SELECT * FROM dbo.Items where Username = ? and CSRF = ? and Department = ? and Unit = ? and Type = ? and HasWeight = ? and SerialNo = ? and PartNo = ? and Weight = ?";
 			ps = con.prepareStatement(sql);
-			ps.setInt(1, bucketIDconverted);
-			ps.setString(2, serialNumber);
-			ps.setString(3,  partNumber);
-
+			ps.setString(1, username);
+			ps.setString(2, csrf);
+			ps.setString(3, department);
+			ps.setInt(4, unit);
+			ps.setString(5, type);
+			ps.setInt(6, hasWeight);
+			ps.setInt(7, serialNo);
+			ps.setInt(8, partNo);
+			ps.setInt(9, weight);
 
 			rs = ps.executeQuery();
 			if(rs.isBeforeFirst()) {
@@ -165,16 +170,25 @@ public class InventoryManagementApplication {
 					}
 				}
 				itemID++;
-				String sqlInsert = "INSERT INTO dbo.Items(ItemID, BucketID, PartNumber, SerialNumber) " + 
-						"values(?, ?, ?, ?)";
+				String sqlInsert = "INSERT INTO dbo.Items(ItemID, Username, CSRF, Department, Unit, Type, HasWeight, SerialNo, PartNo, Weight) " + 
+						"values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 				psInsert = con.prepareStatement(sqlInsert);
 				psInsert.setInt(1, itemID);
-				psInsert.setInt(2, bucketIDconverted);
-				psInsert.setString(3, partNumber);
-				psInsert.setString(4, serialNumber);
+				psInsert.setString(2, username);
+				psInsert.setString(3, csrf);
+				psInsert.setString(4, department);
+				psInsert.setInt(5, unit);
+				psInsert.setString(6, type);
+				//psInsert.setBoolean(7, hasWeight);
+				if (hasWeight != 0)
+					psInsert.setInt(7, 1);
+				else
+					psInsert.setInt(7, 0);
+				psInsert.setInt(8, serialNo);
+				psInsert.setInt(9, partNo);
+				psInsert.setInt(10, weight);
 
 				psInsert.executeUpdate();
-
 			}
 		} catch (SQLException e) {
 
@@ -325,6 +339,4 @@ public class InventoryManagementApplication {
 		}
 		return true;
 	}
-
 }
-
