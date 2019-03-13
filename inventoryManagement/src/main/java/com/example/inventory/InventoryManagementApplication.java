@@ -149,13 +149,13 @@ public class InventoryManagementApplication {
 			rs = ps.executeQuery();
 			if(rs.isBeforeFirst()) {
 				//while(rs.next()) {
-					return false;
-					//	System.out.println("UserName: " + rs.getString("UserName") + " Password: " + rs.getString("Password") + " Admin: " + rs.getString("Admin"));
+				return false;
+				//	System.out.println("UserName: " + rs.getString("UserName") + " Password: " + rs.getString("Password") + " Admin: " + rs.getString("Admin"));
 				//}
 
 			} else {
 				int itemID = 0;
-				
+
 				String sqlMaxID = "SELECT max(ItemID) as itemId FROM dbo.Items";
 				Statement state = con.createStatement();
 				rs2 = state.executeQuery(sqlMaxID);
@@ -200,7 +200,7 @@ public class InventoryManagementApplication {
 			if(!rs2.isClosed() && rs2 != null) {
 				rs2.close();
 			}
-		*/
+			 */
 		}
 
 		return true;
@@ -223,19 +223,19 @@ public class InventoryManagementApplication {
 			ps.setInt(1, bucketIDconverted);
 			ps.setString(2, serialNumber);
 			ps.setString(3,  partNumber);
-		
+
 
 			rs = ps.executeQuery();
 			if(rs.isBeforeFirst()) {
 				String sqlDelete = "DELETE FROM dbo.Items where BucketID = ? and SerialNumber = ? and PartNumber = ?";
-				
+
 				ps2 = con.prepareStatement(sqlDelete);
 				ps2.setInt(1, bucketIDconverted);
 				ps2.setString(2,  serialNumber);
 				ps2.setString(3,  partNumber);
 				ps2.executeUpdate();
 			}
-			
+
 		} catch (SQLException e) {
 
 			e.printStackTrace();
@@ -257,12 +257,74 @@ public class InventoryManagementApplication {
 			if(!ps2.isClosed()) {
 				ps2.close();
 			}
-*/
+			 */
 		}
 		return true;
 	}
 
+	public boolean setUpPartNumber(String partNumber, int trackByWeightConverted, double weightConverted) throws SQLException {
+		// TODO Auto-generated method stub
+		Connection con = null;
+		PreparedStatement ps = null;
+		PreparedStatement psInsert = null;
+		ResultSet rs = null;
 
+		String connectionUrl = "jdbc:sqlserver://pyro-db.cc5cts2xsvng.us-east-2.rds.amazonaws.com:1433;databaseName=FuzzyDB;user=Fuzzies;password=abcdefg1234567";
+
+		try {
+			con = DriverManager.getConnection(connectionUrl);
+
+			String sql = "SELECT * FROM dbo.PartNumbers where PartNumber = ? and TrackByWeight = ? and Weight = ?";
+			ps = con.prepareStatement(sql);
+			ps.setString(1, partNumber);
+			ps.setInt(2, trackByWeightConverted);
+			ps.setDouble(3,  weightConverted);
+
+			rs = ps.executeQuery();
+			if(rs.isBeforeFirst()) {
+
+				return false;
+
+			} else {
+
+				String sqlInsert = "INSERT INTO dbo.PartNumbers(PartNumber, TrackByWeight, Weight) " + 
+						"values(?, ?, ?)";
+				psInsert = con.prepareStatement(sqlInsert);
+				psInsert.setString(1, partNumber);
+				if (trackByWeightConverted != 0)
+					psInsert.setInt(2, 1);
+				else
+					psInsert.setInt(2, 0);
+				psInsert.setDouble(3, weightConverted);
+
+				psInsert.executeUpdate();
+
+			}
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+			return false;
+
+		} finally {
+			if(!con.isClosed() && con != null) {
+				con.close();
+			}
+
+			if(!rs.isClosed() && rs != null) {
+				rs.close();
+			}
+
+			if(!ps.isClosed() && ps != null) {
+				ps.close();
+			}
+			/*
+			if(!psInsert.isClosed() && psInsert != null) {
+				psInsert.close();
+			}
+			 */
+		}
+		return true;
+	}
 
 
 }

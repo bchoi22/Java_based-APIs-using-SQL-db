@@ -69,7 +69,7 @@ public class InventoryController {
 		return response;
 	}
 
-	
+
 	@RequestMapping(value = "/removePartsToStorage")
 	@ResponseBody 
 	public Boolean removePartsToStorage(@RequestBody Map<String, String> payload) throws SQLException {
@@ -82,5 +82,17 @@ public class InventoryController {
 		return response;
 	}
 
+	@RequestMapping(value = "/partSetUp")
+	@ResponseBody 
+	public Boolean setUpPartNumber(@RequestBody Map<String, String> payload) throws SQLException {
+		String partNumber = payload.get("partNumber");
+		String trackByWeight = payload.get("trackByWeight");
+		int trackByWeightConverted = Integer.parseInt(trackByWeight);
+		String weight = payload.get("weight");
+		double weightConverted = Integer.parseInt(weight);
+
+		boolean response = inventoryManagement.setUpPartNumber(partNumber, trackByWeightConverted, weightConverted);
+		return response;
+	}
 
 }
