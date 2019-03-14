@@ -6,6 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.boot.SpringApplication;
@@ -324,6 +326,73 @@ public class InventoryManagementApplication {
 			 */
 		}
 		return true;
+	}
+
+	
+	
+	public List<DashboardData> gatherDashboardData() throws SQLException {
+		Connection con = null;
+		Statement stmt = null;
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		String connectionUrl = "jdbc:sqlserver://pyro-db.cc5cts2xsvng.us-east-2.rds.amazonaws.com:1433;databaseName=FuzzyDB;user=Fuzzies;password=abcdefg1234567";
+
+		
+		List<DashboardData> dataList = new ArrayList<DashboardData>();
+		
+		try {
+			con = DriverManager.getConnection(connectionUrl);
+
+			String sql = "select BucketID, DepartmentID, BucketName, Location, UnitOfMeasurement, MaxMeasurement from dbo.buckets";
+			stmt = con.createStatement();
+
+			rs = stmt.executeQuery(sql);
+			if(rs != null) {
+				while(rs.next()) {
+					DashboardData dashboard = new DashboardData();	
+					
+					int bucketId = rs.getInt("BucketID");
+					String departmentId = rs.getString("DepartmentID");
+					String bucketName = rs.getString("BucketName");
+					String location = rs.getString("Location");
+					String unitOfMeas = rs.getString("UnitOfMeasurement");
+					int maxMeasurement = rs.getInt("MaxMeasurement");
+					
+					dashboard.setBucketId(bucketId);
+					dashboard.setDepartmentId(departmentId);
+					dashboard.setBucketName(bucketName);
+					dashboard.setLocation(location);
+					dashboard.setUnitOfMeasurement(unitOfMeas);
+					dashboard.setMaxMeasurement(maxMeasurement);
+					
+					dataList.add(dashboard);
+					
+					//	System.out.println("UserName: " + rs.getString("UserName") + " Password: " + rs.getString("Password") + " Admin: " + rs.getString("Admin"));
+				}
+				if(!dataList.isEmpty()) {
+					for(DashboardData dashboardItem : dataList) {
+						String sqlCapacity = "";
+						if(("pounds").equals(dashboardItem.getUnitOfMeasurement())) {	
+							sqlCapacity = "select sum(weight) as total from dbo.items where unit = ?";
+						} else {
+							sqlCapacity = "select count(*) as total from dbo.items where unit = ?";
+						}
+						ps = con.prepareStatement(sqlCapacity);
+						ps.setInt(1, dashboardItem.getBucketId());
+						rs = ps.executeQuery();
+					}
+				}
+			} 
+		} catch (SQLException e) {
+			
+			
+		}
+		finally {
+			if(!con.isClosed()) {
+				con.close();
+			}
+		}
+		return dataList;
 	}
 
 

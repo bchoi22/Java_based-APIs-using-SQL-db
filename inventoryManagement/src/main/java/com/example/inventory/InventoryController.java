@@ -1,6 +1,8 @@
 package com.example.inventory;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.attoparser.config.ParseConfiguration;
@@ -93,6 +95,17 @@ public class InventoryController {
 
 		boolean response = inventoryManagement.setUpPartNumber(partNumber, trackByWeightConverted, weightConverted);
 		return response;
+	}
+	
+	@RequestMapping(value = "/dashboard")
+	@ResponseBody
+	public List<DashboardData> returnDashboard() throws SQLException {
+		
+		List<DashboardData> dashboard = new ArrayList<DashboardData>();
+		
+		dashboard = inventoryManagement.gatherDashboardData();
+		
+		return dashboard;
 	}
 
 }

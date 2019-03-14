@@ -2,53 +2,87 @@ package com.example.inventory;
 
 public class DashboardData {
 
-	private String name;
+	private int bucketId;
+	private String departmentId;
+	private String bucketName;
 	private String location;
-	private double capacity;
-	private int numberOfItems;
-	private double currentWeight;
+	private String unitOfMeasurement;
+	private int maxMeasurement;
+	private Double capacity;
 	
-	public DashboardData(String name, String location, double capacity, int numberOfItems, double currentWeight) {
+	
+	
+	public DashboardData(int bucketId, String departmentId, String bucketName, String location,
+			String unitOfMeasurement, int maxMeasurement, Double capacity) {
 		super();
-		this.name = name;
+		this.bucketId = bucketId;
+		this.departmentId = departmentId;
+		this.bucketName = bucketName;
 		this.location = location;
+		this.unitOfMeasurement = unitOfMeasurement;
+		this.maxMeasurement = maxMeasurement;
 		this.capacity = capacity;
-		this.numberOfItems = numberOfItems;
-		this.currentWeight = currentWeight;
 	}
-	
+
 	public DashboardData() {}
-	
-	public String getName() {
-		return name;
+
+	public int getBucketId() {
+		return bucketId;
 	}
-	public void setName(String name) {
-		this.name = name;
+
+	public void setBucketId(int bucketId) {
+		this.bucketId = bucketId;
 	}
+
+	public String getDepartmentId() {
+		return departmentId;
+	}
+
+	public void setDepartmentId(String departmentId) {
+		this.departmentId = departmentId;
+	}
+
+	public String getBucketName() {
+		return bucketName;
+	}
+
+	public void setBucketName(String bucketName) {
+		this.bucketName = bucketName;
+	}
+
 	public String getLocation() {
 		return location;
 	}
+
 	public void setLocation(String location) {
 		this.location = location;
 	}
-	public double getCapacity() {
+
+	public String getUnitOfMeasurement() {
+		return unitOfMeasurement;
+	}
+
+	public void setUnitOfMeasurement(String unitOfMeasurement) {
+		this.unitOfMeasurement = unitOfMeasurement;
+	}
+
+	public int getMaxMeasurement() {
+		return maxMeasurement;
+	}
+
+	public void setMaxMeasurement(int maxMeasurement) {
+		this.maxMeasurement = maxMeasurement;
+	}
+
+	public Double getCapacity() {
 		return capacity;
 	}
-	public void setCapacity(double capacity) {
+
+	public void setCapacity(Double capacity) {
 		this.capacity = capacity;
 	}
-	public int getNumberOfItems() {
-		return numberOfItems;
-	}
-	public void setNumberOfItems(int numberOfItems) {
-		this.numberOfItems = numberOfItems;
-	}
-	public double getCurrentWeight() {
-		return currentWeight;
-	}
-	public void setCurrentWeight(double currentWeight) {
-		this.currentWeight = currentWeight;
-	}
+	
+	
 	
 	
 }
