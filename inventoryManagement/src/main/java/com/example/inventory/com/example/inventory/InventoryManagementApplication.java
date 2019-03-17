@@ -6,6 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.boot.SpringApplication;
@@ -339,5 +341,62 @@ public class InventoryManagementApplication {
 		*/
 		}
 		return true;
+	}
+	
+	//curl -H "Content-Type: application/json" --data '{"deptId":"testDept","trackByWeight":1, "weight":1234}' @body.json http://localhost:8080/unit
+	public Unit unitData(String deptID) throws SQLException{
+		
+		Unit unitObject = new Unit(false, null);
+		Connection con = null;
+		Statement stmt = null;
+		ResultSet rs = null;
+		ResultSet rsConfirm = null;
+		//PreparedStatement ps = null;
+		String connectionUrl = "jdbc:sqlserver://pyro-db.cc5cts2xsvng.us-east-2.rds.amazonaws.com:1433;databaseName=FuzzyDB;user=Fuzzies;password=abcdefg1234567";
+		
+		try {
+			con = DriverManager.getConnection(connectionUrl);
+			stmt = con.createStatement();
+			String sqlConfirm = "select * from dbo.Buckets where UnitOfMeasurement = 'pounds' AND DepartmentID = '$[deptID]'";
+			rsConfirm = stmt.executeQuery(sqlConfirm);
+			
+			if (rsConfirm != null) {
+				unitObject.setHasWeight(true);
+			}else {
+				return unitObject;
+			}
+			
+			List<Items> itemRecords = new ArrayList<Items>();
+			String sql = "select DepartmentID, SerialNo, PartNo, Weight from dbo.Items";
+			rs = stmt.executeQuery(sql);
+			if(rs != null) {
+				while(rs.next()) {
+					if (rs.getString("DepartmentID").contentEquals(deptID)) {
+						Items aRecord = new Items();	
+						
+						String partNo = rs.getString("PartNo");
+						String serialNo = rs.getString("SerialNo");
+						int weight = rs.getInt("Weight");
+						
+						aRecord.setPartNo(partNo);
+						aRecord.setSerialNo(serialNo);
+						aRecord.setWeight(weight);
+
+						itemRecords.add(aRecord);
+					}
+					//System.out.println("PartNo: " + rs.getString("PartNo") + " SerialNo: " + rs.getString("SerialNo") + " Weight: " + rs.getInt("Weight"));
+				}
+				unitObject.setItems(itemRecords);
+			}
+			return unitObject;
+			
+		} catch (SQLException e) {
+		}finally {
+			if(!con.isClosed()) {
+				con.close();
+			}
+		}
+
+		return unitObject;
 	}
 }
