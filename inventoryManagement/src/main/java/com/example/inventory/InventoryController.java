@@ -72,7 +72,7 @@ public class InventoryController {
 	}
 
 	
-	@RequestMapping(value = "/removePartsToStorage")
+	@RequestMapping(value = "/removePartsFromStorage")
 	@ResponseBody 
 	public Boolean removePartsToStorage(@RequestBody String payload) throws SQLException {
 
@@ -143,9 +143,9 @@ public class InventoryController {
 		Unit unitcall = null;
 		try {
 			JsonNode jsonNode = new ObjectMapper().readTree(payload);
-			String deptID = jsonNode.get("deptId").asText();
+			int bucketID = jsonNode.get("BucketId").asInt();
 
-			unitcall = inventoryManagement.unitData(deptID);
+			unitcall = inventoryManagement.unitData(bucketID);
 			return unitcall;
 			
 		} catch (IOException e) {

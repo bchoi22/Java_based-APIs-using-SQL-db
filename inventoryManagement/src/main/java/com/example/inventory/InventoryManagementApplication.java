@@ -341,9 +341,9 @@ public class InventoryManagementApplication {
 		return true;
 	}
 
-	//curl -H "Content-Type: application/json" --data '{"deptId":"testDept","trackByWeight":1, "weight":1234}' @body.json http://localhost:8080/unit
-	public Unit unitData(String deptID) throws SQLException{
-
+	//curl -H "Content-Type: application/json" --data '{"BucketId":"testDept"}' http://localhost:8080/unit
+	public Unit unitData(int bucketID) throws SQLException{
+		
 		Unit unitObject = new Unit(false, null);
 		Connection con = null;
 		Statement stmt = null;
@@ -351,31 +351,33 @@ public class InventoryManagementApplication {
 		ResultSet rsConfirm = null;
 		//PreparedStatement ps = null;
 		String connectionUrl = "jdbc:sqlserver://pyro-db.cc5cts2xsvng.us-east-2.rds.amazonaws.com:1433;databaseName=FuzzyDB;user=Fuzzies;password=abcdefg1234567";
-
+		
 		try {
 			con = DriverManager.getConnection(connectionUrl);
 			stmt = con.createStatement();
-			String sqlConfirm = "select * from dbo.Buckets where UnitOfMeasurement = 'pounds' AND DepartmentID = '$[deptID]'";
+			//System.out.println(bucketID);
+			String sqlConfirm = "select * from dbo.Buckets where UnitOfMeasurement = 'pounds' AND BucketID = '$[bucketID]'";
 			rsConfirm = stmt.executeQuery(sqlConfirm);
-
+			
 			if (rsConfirm != null) {
 				unitObject.setHasWeight(true);
 			}else {
 				return unitObject;
 			}
-
+			
 			List<Items> itemRecords = new ArrayList<Items>();
-			String sql = "select DepartmentID, SerialNo, PartNo, Weight from dbo.Items";
+			String sql = "select BucketID, SerialNo, PartNo, Weight from dbo.Items";
 			rs = stmt.executeQuery(sql);
 			if(rs != null) {
 				while(rs.next()) {
-					if (rs.getString("DepartmentID").contentEquals(deptID)) {
+					//if (rs.getString("BucketID").contentEquals(bucketID)) {
+					if (rs.getInt("BucketID") == bucketID) {
 						Items aRecord = new Items();	
-
+						
 						String partNo = rs.getString("PartNo");
 						String serialNo = rs.getString("SerialNo");
 						int weight = rs.getInt("Weight");
-
+						
 						aRecord.setPartNo(partNo);
 						aRecord.setSerialNo(serialNo);
 						aRecord.setWeight(weight);
@@ -387,7 +389,7 @@ public class InventoryManagementApplication {
 				unitObject.setItems(itemRecords);
 			}
 			return unitObject;
-
+			
 		} catch (SQLException e) {
 		}finally {
 			if(!con.isClosed()) {
@@ -396,8 +398,7 @@ public class InventoryManagementApplication {
 		}
 
 		return unitObject;
-	}
-
+}
 
 
 	public List<DashboardData> gatherDashboardData() throws SQLException {
