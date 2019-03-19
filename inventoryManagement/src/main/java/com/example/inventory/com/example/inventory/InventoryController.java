@@ -151,9 +151,9 @@ public class InventoryController {
 		Unit unitcall = null;
 		try {
 			JsonNode jsonNode = new ObjectMapper().readTree(payload);
-			String deptID = jsonNode.get("deptId").asText();
-
-			unitcall = inventoryManagement.unitData(deptID);
+			int bucketID = jsonNode.get("BucketId").asInt();
+			//System.out.println(bucketID);
+			unitcall = inventoryManagement.unitData(bucketID);
 			return unitcall;
 			
 		} catch (IOException e) {

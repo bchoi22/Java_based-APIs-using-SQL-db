@@ -343,8 +343,8 @@ public class InventoryManagementApplication {
 		return true;
 	}
 	
-	//curl -H "Content-Type: application/json" --data '{"deptId":"testDept","trackByWeight":1, "weight":1234}' @body.json http://localhost:8080/unit
-	public Unit unitData(String deptID) throws SQLException{
+	//curl -H "Content-Type: application/json" --data '{"BucketId":"testDept"}' http://localhost:8080/unit
+	public Unit unitData(int bucketID) throws SQLException{
 		
 		Unit unitObject = new Unit(false, null);
 		Connection con = null;
@@ -357,7 +357,8 @@ public class InventoryManagementApplication {
 		try {
 			con = DriverManager.getConnection(connectionUrl);
 			stmt = con.createStatement();
-			String sqlConfirm = "select * from dbo.Buckets where UnitOfMeasurement = 'pounds' AND DepartmentID = '$[deptID]'";
+			//System.out.println(bucketID);
+			String sqlConfirm = "select * from dbo.Buckets where UnitOfMeasurement = 'pounds' AND BucketID = '$[bucketID]'";
 			rsConfirm = stmt.executeQuery(sqlConfirm);
 			
 			if (rsConfirm != null) {
@@ -367,11 +368,12 @@ public class InventoryManagementApplication {
 			}
 			
 			List<Items> itemRecords = new ArrayList<Items>();
-			String sql = "select DepartmentID, SerialNo, PartNo, Weight from dbo.Items";
+			String sql = "select BucketID, SerialNo, PartNo, Weight from dbo.Items";
 			rs = stmt.executeQuery(sql);
 			if(rs != null) {
 				while(rs.next()) {
-					if (rs.getString("DepartmentID").contentEquals(deptID)) {
+					//if (rs.getString("BucketID").contentEquals(bucketID)) {
+					if (rs.getInt("BucketID") == bucketID) {
 						Items aRecord = new Items();	
 						
 						String partNo = rs.getString("PartNo");
@@ -399,4 +401,5 @@ public class InventoryManagementApplication {
 
 		return unitObject;
 	}
+
 }
