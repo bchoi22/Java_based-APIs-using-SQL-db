@@ -8,8 +8,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -26,7 +24,8 @@ public class InventoryManagementApplication {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
-		String connectionUrl = "jdbc:sqlserver://pyro-db.cc5cts2xsvng.us-east-2.rds.amazonaws.com:1433;databaseName=?;user=?;password=?";
+		//String connectionUrl = "jdbc:sqlserver://pyro-db.cc5cts2xsvng.us-east-2.rds.amazonaws.com:1433;databaseName=?;user=?;password=?";
+		String connectionUrl = "jdbc:sqlserver://pyro-db.cc5cts2xsvng.us-east-2.rds.amazonaws.com:1433;databaseName=FuzzyDB;user=Fuzzies;password=abcdefg1234567";
 
 		try {
 			con = DriverManager.getConnection(connectionUrl);
@@ -128,7 +127,7 @@ public class InventoryManagementApplication {
 	}
 
 
-	public boolean addPartsToStorage(int bucketIDconverted, String partNumber, String serialNumber) throws SQLException {
+	public boolean addPartsToStorage(String username, String csrf, String department, int unit, String type, int hasWeight, int serialNo, int partNo, int weight) throws SQLException {
 		// TODO Auto-generated method stub
 		Connection con = null;
 		PreparedStatement ps = null;
@@ -141,12 +140,17 @@ public class InventoryManagementApplication {
 		try {
 			con = DriverManager.getConnection(connectionUrl);
 
-			String sql = "SELECT * FROM dbo.Items where BucketID = ? and SerialNumber = ? and PartNumber = ?";
+			String sql = "SELECT * FROM dbo.Items where Username = ? and CSRF = ? and Department = ? and Unit = ? and Type = ? and HasWeight = ? and SerialNo = ? and PartNo = ? and Weight = ?";
 			ps = con.prepareStatement(sql);
-			ps.setInt(1, bucketIDconverted);
-			ps.setString(2, serialNumber);
-			ps.setString(3,  partNumber);
-
+			ps.setString(1, username);
+			ps.setString(2, csrf);
+			ps.setString(3, department);
+			ps.setInt(4, unit);
+			ps.setString(5, type);
+			ps.setInt(6, hasWeight);
+			ps.setInt(7, serialNo);
+			ps.setInt(8, partNo);
+			ps.setInt(9, weight);
 
 			rs = ps.executeQuery();
 			if(rs.isBeforeFirst()) {
@@ -167,16 +171,25 @@ public class InventoryManagementApplication {
 					}
 				}
 				itemID++;
-				String sqlInsert = "INSERT INTO dbo.Items(ItemID, BucketID, PartNumber, SerialNumber) " + 
-						"values(?, ?, ?, ?)";
+				String sqlInsert = "INSERT INTO dbo.Items(ItemID, Username, CSRF, Department, Unit, Type, HasWeight, SerialNo, PartNo, Weight) " + 
+						"values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 				psInsert = con.prepareStatement(sqlInsert);
 				psInsert.setInt(1, itemID);
-				psInsert.setInt(2, bucketIDconverted);
-				psInsert.setString(3, partNumber);
-				psInsert.setString(4, serialNumber);
+				psInsert.setString(2, username);
+				psInsert.setString(3, csrf);
+				psInsert.setString(4, department);
+				psInsert.setInt(5, unit);
+				psInsert.setString(6, type);
+				//psInsert.setBoolean(7, hasWeight);
+				if (hasWeight != 0)
+					psInsert.setInt(7, 1);
+				else
+					psInsert.setInt(7, 0);
+				psInsert.setInt(8, serialNo);
+				psInsert.setInt(9, partNo);
+				psInsert.setInt(10, weight);
 
 				psInsert.executeUpdate();
-
 			}
 		} catch (SQLException e) {
 
@@ -328,8 +341,65 @@ public class InventoryManagementApplication {
 		return true;
 	}
 
-	
-	
+	//curl -H "Content-Type: application/json" --data '{"deptId":"testDept","trackByWeight":1, "weight":1234}' @body.json http://localhost:8080/unit
+	public Unit unitData(String deptID) throws SQLException{
+
+		Unit unitObject = new Unit(false, null);
+		Connection con = null;
+		Statement stmt = null;
+		ResultSet rs = null;
+		ResultSet rsConfirm = null;
+		//PreparedStatement ps = null;
+		String connectionUrl = "jdbc:sqlserver://pyro-db.cc5cts2xsvng.us-east-2.rds.amazonaws.com:1433;databaseName=FuzzyDB;user=Fuzzies;password=abcdefg1234567";
+
+		try {
+			con = DriverManager.getConnection(connectionUrl);
+			stmt = con.createStatement();
+			String sqlConfirm = "select * from dbo.Buckets where UnitOfMeasurement = 'pounds' AND DepartmentID = '$[deptID]'";
+			rsConfirm = stmt.executeQuery(sqlConfirm);
+
+			if (rsConfirm != null) {
+				unitObject.setHasWeight(true);
+			}else {
+				return unitObject;
+			}
+
+			List<Items> itemRecords = new ArrayList<Items>();
+			String sql = "select DepartmentID, SerialNo, PartNo, Weight from dbo.Items";
+			rs = stmt.executeQuery(sql);
+			if(rs != null) {
+				while(rs.next()) {
+					if (rs.getString("DepartmentID").contentEquals(deptID)) {
+						Items aRecord = new Items();	
+
+						String partNo = rs.getString("PartNo");
+						String serialNo = rs.getString("SerialNo");
+						int weight = rs.getInt("Weight");
+
+						aRecord.setPartNo(partNo);
+						aRecord.setSerialNo(serialNo);
+						aRecord.setWeight(weight);
+
+						itemRecords.add(aRecord);
+					}
+					//System.out.println("PartNo: " + rs.getString("PartNo") + " SerialNo: " + rs.getString("SerialNo") + " Weight: " + rs.getInt("Weight"));
+				}
+				unitObject.setItems(itemRecords);
+			}
+			return unitObject;
+
+		} catch (SQLException e) {
+		}finally {
+			if(!con.isClosed()) {
+				con.close();
+			}
+		}
+
+		return unitObject;
+	}
+
+
+
 	public List<DashboardData> gatherDashboardData() throws SQLException {
 		Connection con = null;
 		Statement stmt = null;
@@ -337,9 +407,9 @@ public class InventoryManagementApplication {
 		PreparedStatement ps = null;
 		String connectionUrl = "jdbc:sqlserver://pyro-db.cc5cts2xsvng.us-east-2.rds.amazonaws.com:1433;databaseName=FuzzyDB;user=Fuzzies;password=abcdefg1234567";
 
-		
+
 		List<DashboardData> dataList = new ArrayList<DashboardData>();
-		
+
 		try {
 			con = DriverManager.getConnection(connectionUrl);
 
@@ -350,42 +420,50 @@ public class InventoryManagementApplication {
 			if(rs != null) {
 				while(rs.next()) {
 					DashboardData dashboard = new DashboardData();	
-					
+
 					int bucketId = rs.getInt("BucketID");
 					String departmentId = rs.getString("DepartmentID");
 					String bucketName = rs.getString("BucketName");
 					String location = rs.getString("Location");
 					String unitOfMeas = rs.getString("UnitOfMeasurement");
 					int maxMeasurement = rs.getInt("MaxMeasurement");
-					
+
 					dashboard.setBucketId(bucketId);
 					dashboard.setDepartmentId(departmentId);
 					dashboard.setBucketName(bucketName);
 					dashboard.setLocation(location);
 					dashboard.setUnitOfMeasurement(unitOfMeas);
 					dashboard.setMaxMeasurement(maxMeasurement);
-					
+
 					dataList.add(dashboard);
-					
+
 					//	System.out.println("UserName: " + rs.getString("UserName") + " Password: " + rs.getString("Password") + " Admin: " + rs.getString("Admin"));
 				}
 				if(!dataList.isEmpty()) {
 					for(DashboardData dashboardItem : dataList) {
 						String sqlCapacity = "";
 						if(("pounds").equals(dashboardItem.getUnitOfMeasurement())) {	
-							sqlCapacity = "select sum(weight) as total from dbo.items where unit = ?";
+							sqlCapacity = "select sum(weight) as total from dbo.items where BucketID = ?";
 						} else {
-							sqlCapacity = "select count(*) as total from dbo.items where unit = ?";
+							sqlCapacity = "select count(*) as total from dbo.items where BucketID = ?";
 						}
 						ps = con.prepareStatement(sqlCapacity);
 						ps.setInt(1, dashboardItem.getBucketId());
 						rs = ps.executeQuery();
+						if(rs.isBeforeFirst()) {
+							while(rs.next()) {
+								int total = rs.getInt("total");
+								Double convTotal = Double.valueOf(total);
+								Double capacity = (convTotal/dashboardItem.getMaxMeasurement()) * 100.0;
+								dashboardItem.setCapacity(capacity);
+							}
+						}
 					}
 				}
 			} 
 		} catch (SQLException e) {
-			
-			
+
+
 		}
 		finally {
 			if(!con.isClosed()) {

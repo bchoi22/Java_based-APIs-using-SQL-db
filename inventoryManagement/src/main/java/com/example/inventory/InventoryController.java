@@ -1,17 +1,18 @@
 package com.example.inventory;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
-import org.attoparser.config.ParseConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 public class InventoryController {
@@ -30,72 +31,131 @@ public class InventoryController {
 	 */
 	@RequestMapping("/login")
 	@ResponseBody
-	public Boolean login(@RequestBody Map<String, String> payload) throws SQLException, ClassNotFoundException {
-		//The controller receives the request from the front end and then sends it
-		//to inventoryManagement to perform processing. 
-		//DashboardData dashData = new DashboardData();
-		boolean authenticated = false;
-		String username = payload.get("username");
-		String password = payload.get("password");
+	public Boolean login(@RequestBody String payload) throws SQLException, ClassNotFoundException {
 
-		authenticated = inventoryManagement.authenticateIntoApplication(username, password); 
-
-		return authenticated;
+		try {
+			JsonNode jsonNode = new ObjectMapper().readTree(payload);
+			String username = jsonNode.get("username").asText();
+			String password = jsonNode.get("password").asText();
+			
+			Boolean authenticated = inventoryManagement.authenticateIntoApplication(username, password); 
+			return authenticated;
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	//test with: curl -H "Content-Type: application/json" --data '{"bucketName":"Unit1","partNumbersAllowed":"123789-121", "department":"testDept", "unitOfMeasurement":"pounds", "maxMeasurement":"300", "location":"testLocation"}' @body.json http://localhost:8080/createDigitalStorageItem
 	@RequestMapping(value = "/createDigitalStorageItem")
 	@ResponseBody
-	public Boolean createDigitalStorageItem(@RequestBody Map<String, String> payload) throws SQLException {
-		String bucketName = payload.get("bucketName");
-		String partNumbersAllowed = payload.get("partNumbersAllowed");
-		String department = payload.get("department");
-		String unitOfMeasurement = payload.get("unitOfMeasurement");
-		String maxMeasurement = payload.get("maxMeasurement");
-		String location = payload.get("location");
-		int maxMeasConverted = Integer.parseInt(maxMeasurement);
-		boolean response = inventoryManagement.createDigitalStorageItem(bucketName, partNumbersAllowed, department, unitOfMeasurement, maxMeasConverted, location);
-
-		return response;
+	public Boolean createDigitalStorageItem(@RequestBody String payload) throws SQLException {
+		
+		try {
+			JsonNode jsonNode = new ObjectMapper().readTree(payload);
+			String bucketName = jsonNode.get("bucketName").asText();
+			String partNumbersAllowed = jsonNode.get("partNumbersAllowed").asText();
+			String department = jsonNode.get("department").asText();
+			String unitOfMeasurement = jsonNode.get("unitOfMeasurement").asText();
+			int maxMeasurement = jsonNode.get("maxMeasurement").asInt();
+			String location = jsonNode.get("location").asText();
+			
+			boolean response = inventoryManagement.createDigitalStorageItem(bucketName, partNumbersAllowed, department, unitOfMeasurement, maxMeasurement, location);
+			return response;
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return false;
 	}
 
-	@RequestMapping(value = "/addPartsToStorage")
-	@ResponseBody 
-	public Boolean addPartsToStorage(@RequestBody Map<String, String> payload) throws SQLException {
-		String bucketID = payload.get("bucketID");
-		int bucketIDconverted = Integer.parseInt(bucketID);
-		String partNumber = payload.get("partNumber");
-		String serialNumber = payload.get("serialNumber");
-
-		boolean response = inventoryManagement.addPartsToStorage(bucketIDconverted, partNumber, serialNumber);
-		return response;
-	}
-
-
+	
 	@RequestMapping(value = "/removePartsToStorage")
 	@ResponseBody 
-	public Boolean removePartsToStorage(@RequestBody Map<String, String> payload) throws SQLException {
-		String bucketID = payload.get("bucketID");
-		int bucketIDconverted = Integer.parseInt(bucketID);
-		String partNumber = payload.get("partNumber");
-		String serialNumber = payload.get("serialNumber");
+	public Boolean removePartsToStorage(@RequestBody String payload) throws SQLException {
 
-		boolean response = inventoryManagement.removePartsToStorage(bucketIDconverted, partNumber, serialNumber);
-		return response;
+		try {
+			JsonNode jsonNode = new ObjectMapper().readTree(payload);
+			int bucketID = jsonNode.get("bucketID").asInt();
+			String partNumber = jsonNode.get("partNumber").asText();
+			String serialNumber = jsonNode.get("serialNumber").asText();
+			
+			boolean response = inventoryManagement.removePartsToStorage(bucketID, partNumber, serialNumber);
+			return response;
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
-
-	@RequestMapping(value = "/partSetUp")
+	
+	@RequestMapping(method=RequestMethod.POST, value = "/partSetUp")
 	@ResponseBody 
-	public Boolean setUpPartNumber(@RequestBody Map<String, String> payload) throws SQLException {
-		String partNumber = payload.get("partNumber");
-		String trackByWeight = payload.get("trackByWeight");
-		int trackByWeightConverted = Integer.parseInt(trackByWeight);
-		String weight = payload.get("weight");
-		double weightConverted = Integer.parseInt(weight);
-
-		boolean response = inventoryManagement.setUpPartNumber(partNumber, trackByWeightConverted, weightConverted);
-		return response;
+	public Boolean setUpPartNumber(@RequestBody String payload) throws SQLException {
+		
+		try {
+			JsonNode jsonNode = new ObjectMapper().readTree(payload);
+			String partNumber = jsonNode.get("partNumber").asText();
+			int trackByWeight = jsonNode.get("trackByWeight").asInt();
+			int weight = jsonNode.get("weight").asInt();
+			
+			boolean response = inventoryManagement.setUpPartNumber(partNumber, trackByWeight, weight);
+			return response;
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
+	
+	@RequestMapping(value = "/addPartsToStorage")
+	@ResponseBody
+	public Boolean addPartsToStorage(@RequestBody String payload) throws SQLException{
+
+		try {
+			JsonNode jsonNode = new ObjectMapper().readTree(payload);
+			String username = jsonNode.get("username").asText();
+			String csrf = jsonNode.get("csrf").asText();
+			String department = jsonNode.get("department").asText();
+			int unit = jsonNode.get("unit").asInt();
+			String type = jsonNode.get("type").asText();
+			int hasWeight = jsonNode.get("hasWeight").asInt();
+			int serialNo = jsonNode.get("serialNo").asInt();
+			int partNo = jsonNode.get("partNo").asInt();
+			int weight = jsonNode.get("weight").asInt();
+			
+			boolean response = inventoryManagement.addPartsToStorage(username, csrf, department, unit, type, hasWeight, serialNo, partNo, weight);
+			return response;
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return false;
+	}
+	
+	@RequestMapping(value = "/unit")
+	@ResponseBody
+	public Unit unitData(@RequestBody String payload) throws SQLException {
+		
+		Unit unitcall = null;
+		try {
+			JsonNode jsonNode = new ObjectMapper().readTree(payload);
+			String deptID = jsonNode.get("deptId").asText();
+
+			unitcall = inventoryManagement.unitData(deptID);
+			return unitcall;
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return unitcall;
+	}
+	
+
 	
 	@RequestMapping(value = "/dashboard")
 	@ResponseBody
