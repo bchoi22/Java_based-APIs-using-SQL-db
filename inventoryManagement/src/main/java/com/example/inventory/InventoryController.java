@@ -3,7 +3,12 @@ package com.example.inventory;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -159,13 +164,43 @@ public class InventoryController {
 	
 	@RequestMapping(value = "/dashboard")
 	@ResponseBody
-	public List<DashboardData> returnDashboard() throws SQLException {
+	public List<Department> returnDashboard(HttpServletResponse response) throws SQLException {
 		
+		
+		response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+		response.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+		response.setHeader("Access-Control-Allow-Credentials", "true");
 		List<DashboardData> dashboard = new ArrayList<DashboardData>();
 		
 		dashboard = inventoryManagement.gatherDashboardData();
 		
-		return dashboard;
+		HashMap<String, ArrayList<DashboardData>> map = new HashMap<>();
+		for (DashboardData bucket: dashboard) {
+			map.compute(bucket.getDepartmentId(), (key,  value)->{
+				if (value == null) {
+					value = new ArrayList<DashboardData>();
+				} 
+				value.add(bucket);
+				return value;
+				
+			});
+				
+		}
+		ArrayList<Department> ret_list = new ArrayList<Department>();
+		for (Map.Entry<String, ArrayList<DashboardData>> entry: map.entrySet()) {
+			ret_list.add(new Department(entry.getKey(), entry.getValue()));
+		}
+		return ret_list;
 	}
+	
+	private static class Department{
+		public String name;
+		public ArrayList<DashboardData> units;
+
+		public Department(String name, ArrayList<DashboardData> units){
+			this.name = name;
+			this.units = units;
+		}
+}
 
 }

@@ -2,9 +2,9 @@ package com.example.inventory;
 
 public class DashboardData {
 
-	private int bucketId;
+	private int unitID;
 	private String departmentId;
-	private String bucketName;
+	private String unitName;
 	private String location;
 	private String unitOfMeasurement;
 	private int maxMeasurement;
@@ -12,12 +12,12 @@ public class DashboardData {
 	
 	
 	
-	public DashboardData(int bucketId, String departmentId, String bucketName, String location,
+	public DashboardData(int unitID, String departmentId, String unitName, String location,
 			String unitOfMeasurement, int maxMeasurement, Double capacity) {
 		super();
-		this.bucketId = bucketId;
+		this.unitID = unitID;
 		this.departmentId = departmentId;
-		this.bucketName = bucketName;
+		this.unitName = unitName;
 		this.location = location;
 		this.unitOfMeasurement = unitOfMeasurement;
 		this.maxMeasurement = maxMeasurement;
@@ -26,12 +26,12 @@ public class DashboardData {
 
 	public DashboardData() {}
 
-	public int getBucketId() {
-		return bucketId;
+	public int getUnitID() {
+		return unitID;
 	}
 
-	public void setBucketId(int bucketId) {
-		this.bucketId = bucketId;
+	public void setBucketId(int unitID) {
+		this.unitID = unitID;
 	}
 
 	public String getDepartmentId() {
@@ -42,12 +42,12 @@ public class DashboardData {
 		this.departmentId = departmentId;
 	}
 
-	public String getBucketName() {
-		return bucketName;
+	public String getUnitName() {
+		return unitName;
 	}
 
-	public void setBucketName(String bucketName) {
-		this.bucketName = bucketName;
+	public void setUnitName(String unitName) {
+		this.unitName = unitName;
 	}
 
 	public String getLocation() {

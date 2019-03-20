@@ -431,7 +431,7 @@ public class InventoryManagementApplication {
 
 					dashboard.setBucketId(bucketId);
 					dashboard.setDepartmentId(departmentId);
-					dashboard.setBucketName(bucketName);
+					dashboard.setUnitName(bucketName);
 					dashboard.setLocation(location);
 					dashboard.setUnitOfMeasurement(unitOfMeas);
 					dashboard.setMaxMeasurement(maxMeasurement);
@@ -449,7 +449,7 @@ public class InventoryManagementApplication {
 							sqlCapacity = "select count(*) as total from dbo.items where BucketID = ?";
 						}
 						ps = con.prepareStatement(sqlCapacity);
-						ps.setInt(1, dashboardItem.getBucketId());
+						ps.setInt(1, dashboardItem.getUnitID());
 						rs = ps.executeQuery();
 						if(rs.isBeforeFirst()) {
 							while(rs.next()) {
